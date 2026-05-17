@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Anushka Bansode — Data Analyst</title>
+<title>Anushka Bansode — Aspiring Data Analyst</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <style>
 :root {
@@ -1267,7 +1267,7 @@ footer {
             <div class="contact-icon">in</div>
             <div>
               <div class="contact-label">LinkedIn</div>
-              <div class="contact-value"><a id="linkedinLink" href="#" contenteditable="false">www.linkedin.com/in/anushka-bansode-0b3666280</a></div>
+              <div class="contact-value"><a id="linkedinLink" href="#" contenteditable="false">linkedin.com/in/anushkabansode</a></div>
             </div>
           </div>
           <div class="contact-item">
@@ -1320,36 +1320,248 @@ footer {
 <script>
 document.getElementById('footerYear').textContent = new Date().getFullYear();
 
-// ── EDIT MODE ──────────────────────────────────────────
+// ══════════════════════════════════════════════
+// STORAGE KEY
+// ══════════════════════════════════════════════
+const STORAGE_KEY = 'anushka_portfolio_v1';
+
+// ══════════════════════════════════════════════
+// SAVE — collect everything into one object
+// ══════════════════════════════════════════════
+function saveAll() {
+  const data = {};
+
+  // Simple text fields (by id)
+  const textIds = [
+    'heroBadgeText','heroName','heroRole','heroDesc',
+    'heroLocation','heroStatus','floatCardStat',
+    'aboutText','stat1Num','stat1Label','stat2Num','stat2Label',
+    'stat3Num','stat3Label','stat4Num','stat4Label',
+    'contactIntro','emailVal','linkedinLink','twitterLink'
+  ];
+  textIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) data[id] = el.innerHTML;
+  });
+
+  // Social link hrefs
+  ['socialGH','socialLI','socialTW'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) data[id + '_href'] = el.href;
+  });
+
+  // LinkedIn / Twitter hrefs
+  const li = document.getElementById('linkedinLink');
+  if (li) data['linkedinHref'] = li.href;
+  const tw = document.getElementById('twitterLink');
+  if (tw) data['twitterHref'] = tw.href;
+
+  // GitHub
+  data['ghUsername'] = document.getElementById('ghDisplayName')?.textContent || '';
+  data['ghProfileHref'] = document.getElementById('ghProfileBtn')?.href || '';
+
+  // Resume URL
+  data['resumeUrl'] = document.getElementById('resumeDownloadBtn')?.href || '';
+
+  // Projects — save full card HTML
+  const cards = [];
+  document.querySelectorAll('#projectsGrid .project-card').forEach(card => {
+    cards.push({
+      title: card.querySelector('.project-title')?.innerHTML || '',
+      desc: card.querySelector('.project-desc')?.innerHTML || '',
+      tags: Array.from(card.querySelectorAll('.tag')).map(t => t.innerHTML),
+      live: card.dataset.live || '',
+      github: card.dataset.github || ''
+    });
+  });
+  data['projects'] = cards;
+
+  // Skills — save groups
+  const groups = [];
+  document.querySelectorAll('#skillsWrapper .skill-group').forEach(group => {
+    const title = group.querySelector('.skill-group-title span')?.innerHTML || '';
+    const skills = [];
+    group.querySelectorAll('.skill-item').forEach(item => {
+      skills.push({
+        name: item.querySelector('.skill-name')?.innerHTML || '',
+        w: item.querySelector('.skill-bar')?.style.getPropertyValue('--w') || '70%'
+      });
+    });
+    groups.push({ title, skills });
+  });
+  data['skillGroups'] = groups;
+
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+
+  // Flash saved indicator
+  const btn = document.getElementById('editToggle');
+  const orig = btn.textContent;
+  btn.textContent = '✓ Saved!';
+  btn.style.background = '#4caf7d';
+  setTimeout(() => { btn.textContent = '✏ Edit Mode'; btn.style.background = ''; }, 1200);
+}
+
+// ══════════════════════════════════════════════
+// LOAD — restore everything from storage
+// ══════════════════════════════════════════════
+function loadAll() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return;
+  let data;
+  try { data = JSON.parse(raw); } catch(e) { return; }
+
+  // Simple text fields
+  const textIds = [
+    'heroBadgeText','heroName','heroRole','heroDesc',
+    'heroLocation','heroStatus','floatCardStat',
+    'aboutText','stat1Num','stat1Label','stat2Num','stat2Label',
+    'stat3Num','stat3Label','stat4Num','stat4Label',
+    'contactIntro','emailVal','linkedinLink','twitterLink'
+  ];
+  textIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && data[id] !== undefined) el.innerHTML = data[id];
+  });
+
+  // Social hrefs
+  ['socialGH','socialLI','socialTW'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && data[id + '_href']) el.href = data[id + '_href'];
+  });
+
+  // LinkedIn / Twitter hrefs
+  if (data['linkedinHref']) {
+    const li = document.getElementById('linkedinLink');
+    if (li) li.href = data['linkedinHref'];
+  }
+  if (data['twitterHref']) {
+    const tw = document.getElementById('twitterLink');
+    if (tw) tw.href = data['twitterHref'];
+  }
+
+  // GitHub
+  if (data['ghUsername']) {
+    document.getElementById('ghDisplayName').textContent = data['ghUsername'];
+    document.getElementById('ghUsernameSpan').textContent = data['ghUsername'];
+    document.getElementById('ghUsernameInput').value = data['ghUsername'];
+  }
+  if (data['ghProfileHref']) {
+    document.getElementById('ghProfileBtn').href = data['ghProfileHref'];
+  }
+
+  // Resume
+  if (data['resumeUrl'] && data['resumeUrl'] !== '#') {
+    const btn = document.getElementById('resumeDownloadBtn');
+    if (btn) { btn.href = data['resumeUrl']; }
+    const input = document.getElementById('resumeUrlInput');
+    if (input) input.value = data['resumeUrl'];
+  }
+
+  // Projects — rebuild grid
+  if (data['projects'] && data['projects'].length > 0) {
+    const grid = document.getElementById('projectsGrid');
+    grid.innerHTML = '';
+    data['projects'].forEach((p, i) => {
+      const card = document.createElement('div');
+      card.className = 'project-card reveal visible';
+      card.dataset.live = p.live || '';
+      card.dataset.github = p.github || '';
+      const tagsHtml = (p.tags || []).map(t => `<span class="tag" contenteditable="false">${t}</span>`).join('');
+      card.innerHTML = `
+        <div>
+          <div class="project-num">0${i+1}</div>
+          <div class="project-title" contenteditable="false">${p.title}</div>
+          <div class="project-desc" contenteditable="false">${p.desc}</div>
+          <div class="project-tags">${tagsHtml}</div>
+          <div class="card-actions">
+            <input type="url" class="live-url-input" placeholder="Live / Demo URL" value="${p.live || ''}"/>
+            <input type="url" class="gh-url-input" placeholder="GitHub Repository URL" value="${p.github || ''}"/>
+            <button class="remove-card-btn">✕ Remove</button>
+          </div>
+        </div>
+        <div class="project-links">
+          <a href="${p.live || '#'}" class="project-link live-link" style="display:${p.live ? '' : 'none'}">↗ Live Demo</a>
+          <a href="${p.github || '#'}" class="project-link gh gh-link" style="display:${p.github ? '' : 'none'}">⌥ GitHub</a>
+        </div>`;
+      grid.appendChild(card);
+      card.querySelector('.remove-card-btn').addEventListener('click', () => card.remove());
+    });
+  }
+
+  // Skills — rebuild groups
+  if (data['skillGroups'] && data['skillGroups'].length > 0) {
+    const wrapper = document.getElementById('skillsWrapper');
+    const addGroupBtn = document.getElementById('addSkillGroup');
+    // Remove existing groups (not the add button)
+    wrapper.querySelectorAll('.skill-group').forEach(g => g.remove());
+    data['skillGroups'].forEach(group => {
+      const g = document.createElement('div');
+      g.className = 'skill-group reveal visible';
+      const skillsHtml = group.skills.map(s => `
+        <div class="skill-item">
+          <span class="skill-name" contenteditable="false">${s.name}</span>
+          <div class="skill-bar-wrap"><div class="skill-bar" style="--w:${s.w}"></div></div>
+          <button class="delete-skill">✕</button>
+        </div>`).join('');
+      g.innerHTML = `
+        <div class="skill-group-title"><span contenteditable="false">${group.title}</span></div>
+        <div class="skill-list">${skillsHtml}</div>
+        <div class="skill-group-actions">
+          <input type="text" class="new-skill-input" placeholder="Add skill..."/>
+          <button class="add-skill-btn">+ Add</button>
+        </div>`;
+      wrapper.insertBefore(g, addGroupBtn);
+      bindSkillGroup(g);
+    });
+    // animate bars
+    setTimeout(() => {
+      wrapper.querySelectorAll('.skill-bar').forEach(b => b.classList.add('animated'));
+    }, 300);
+  }
+}
+
+// ══════════════════════════════════════════════
+// EDIT MODE
+// ══════════════════════════════════════════════
 const editToggle = document.getElementById('editToggle');
 let editing = false;
 
 editToggle.addEventListener('click', () => {
-  editing = !editing;
-  document.body.classList.toggle('editing', editing);
-  editToggle.classList.toggle('active', editing);
-  editToggle.textContent = editing ? '✓ Done' : '✏ Edit Mode';
-
-  document.querySelectorAll('[contenteditable]').forEach(el => {
-    el.setAttribute('contenteditable', editing ? 'true' : 'false');
-  });
-
   if (editing) {
+    // SAVE on exit
+    applyAllCardLinks();
+    syncSocialHrefs();
+    saveAll();
+    editing = false;
+    document.body.classList.remove('editing');
+    editToggle.classList.remove('active');
+  } else {
+    editing = true;
+    document.body.classList.add('editing');
+    editToggle.classList.add('active');
+    editToggle.textContent = '✓ Save & Done';
+    document.querySelectorAll('[contenteditable]').forEach(el => el.setAttribute('contenteditable', 'true'));
+    // populate url inputs
     document.querySelectorAll('.project-card').forEach(card => {
       const li = card.querySelector('.live-url-input');
       const gh = card.querySelector('.gh-url-input');
       if (li) li.value = card.dataset.live || '';
       if (gh) gh.value = card.dataset.github || '';
     });
-  } else {
-    document.querySelectorAll('.project-card').forEach(applyCardLinks);
-    // sync social hrefs
-    const li = document.getElementById('linkedinLink');
-    if (li) { let v = li.innerText.trim(); li.href = v.startsWith('http') ? v : 'https://' + v; }
-    const tw = document.getElementById('twitterLink');
-    if (tw) { let v = tw.innerText.trim(); tw.href = v.startsWith('@') ? 'https://twitter.com/' + v.slice(1) : v; }
   }
 });
+
+function applyAllCardLinks() {
+  document.querySelectorAll('.project-card').forEach(applyCardLinks);
+  document.querySelectorAll('[contenteditable]').forEach(el => el.setAttribute('contenteditable', 'false'));
+}
+
+function syncSocialHrefs() {
+  const li = document.getElementById('linkedinLink');
+  if (li) { let v = li.innerText.trim(); li.href = v.startsWith('http') ? v : 'https://' + v; }
+  const tw = document.getElementById('twitterLink');
+  if (tw) { let v = tw.innerText.trim(); tw.href = v.startsWith('@') ? 'https://twitter.com/' + v.slice(1) : v; }
+}
 
 function applyCardLinks(card) {
   const liveInput = card.querySelector('.live-url-input');
@@ -1364,7 +1576,9 @@ function applyCardLinks(card) {
   if (ghLink) { ghLink.href = ghUrl || '#'; ghLink.style.display = ghUrl ? '' : 'none'; }
 }
 
-// ── ADD PROJECT ─────────────────────────────────────────
+// ══════════════════════════════════════════════
+// ADD PROJECT
+// ══════════════════════════════════════════════
 document.getElementById('addProject').addEventListener('click', () => {
   const grid = document.getElementById('projectsGrid');
   const count = grid.querySelectorAll('.project-card').length + 1;
@@ -1396,7 +1610,9 @@ document.querySelectorAll('.project-card').forEach(card => {
   if (rb) rb.addEventListener('click', () => card.remove());
 });
 
-// ── SKILLS ──────────────────────────────────────────────
+// ══════════════════════════════════════════════
+// SKILLS
+// ══════════════════════════════════════════════
 function bindSkillGroup(group) {
   const addBtn = group.querySelector('.add-skill-btn');
   const input = group.querySelector('.new-skill-input');
@@ -1437,7 +1653,9 @@ document.getElementById('addSkillGroup').addEventListener('click', () => {
   bindSkillGroup(g);
 });
 
-// ── GITHUB ───────────────────────────────────────────────
+// ══════════════════════════════════════════════
+// GITHUB
+// ══════════════════════════════════════════════
 document.getElementById('updateGhBtn').addEventListener('click', () => {
   const val = document.getElementById('ghUsernameInput').value.trim();
   if (!val) return;
@@ -1446,7 +1664,9 @@ document.getElementById('updateGhBtn').addEventListener('click', () => {
   document.getElementById('ghProfileBtn').href = `https://github.com/${val}`;
 });
 
-// ── RESUME LINK ──────────────────────────────────────────
+// ══════════════════════════════════════════════
+// RESUME LINK
+// ══════════════════════════════════════════════
 document.getElementById('saveResumeBtn').addEventListener('click', () => {
   const url = document.getElementById('resumeUrlInput').value.trim();
   if (!url) return;
@@ -1456,7 +1676,40 @@ document.getElementById('saveResumeBtn').addEventListener('click', () => {
   setTimeout(() => btn.style.background = '', 1000);
 });
 
-// ── SCROLL REVEAL ────────────────────────────────────────
+// ══════════════════════════════════════════════
+// RESET BUTTON (clears all saved data)
+// ══════════════════════════════════════════════
+const resetBtn = document.createElement('button');
+resetBtn.textContent = '↺ Reset';
+resetBtn.style.cssText = `
+  position:fixed; bottom:20px; right:20px; z-index:999;
+  background:transparent; border:1.5px solid #e8e2d9;
+  color:#8a7d74; font-family:'DM Sans',sans-serif;
+  font-size:11px; padding:7px 14px; border-radius:20px;
+  cursor:pointer; transition:all 0.2s; display:none;
+`;
+resetBtn.addEventListener('mouseenter', () => { resetBtn.style.borderColor='#e05555'; resetBtn.style.color='#e05555'; });
+resetBtn.addEventListener('mouseleave', () => { resetBtn.style.borderColor='#e8e2d9'; resetBtn.style.color='#8a7d74'; });
+resetBtn.addEventListener('click', () => {
+  if (confirm('Reset all edits to default? This cannot be undone.')) {
+    localStorage.removeItem(STORAGE_KEY);
+    location.reload();
+  }
+});
+document.body.appendChild(resetBtn);
+document.body.addEventListener('click', () => {
+  // show reset btn only when editing
+});
+
+// Show reset in edit mode
+const origToggle = editToggle.addEventListener;
+document.getElementById('editToggle').addEventListener('click', () => {
+  resetBtn.style.display = document.body.classList.contains('editing') ? 'block' : 'none';
+}, true);
+
+// ══════════════════════════════════════════════
+// SCROLL REVEAL
+// ══════════════════════════════════════════════
 const observer = new IntersectionObserver(entries => {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
@@ -1468,12 +1721,16 @@ const observer = new IntersectionObserver(entries => {
 
 document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-// Animate skill bars in view on load
 setTimeout(() => {
   document.querySelectorAll('.skill-bar').forEach(b => {
     if (b.getBoundingClientRect().top < window.innerHeight) b.classList.add('animated');
   });
 }, 500);
+
+// ══════════════════════════════════════════════
+// INIT — load saved data on page load
+// ══════════════════════════════════════════════
+loadAll();
 </script>
 </body>
 </html>
