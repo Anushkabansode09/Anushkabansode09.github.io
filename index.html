@@ -96,6 +96,27 @@
   .navcta:hover{background:var(--choc-bright); color:var(--navy);}
   .menu-toggle{display:none; background:none; border:none; color:var(--cream); font-size:22px; cursor:pointer;}
 
+  .resume-dd{position:relative;}
+  .resume-dd-btn{
+    font-family:'JetBrains Mono',monospace; font-size:13px;
+    border:1px solid var(--choc-bright); color:var(--choc-bright); background:none;
+    padding:8px 14px; cursor:pointer;
+  }
+  .resume-dd-btn:hover{background:var(--choc-bright); color:var(--navy);}
+  .resume-dd-menu{
+    position:absolute; top:calc(100% + 8px); right:0;
+    background:var(--navy-2); border:1px solid var(--line);
+    min-width:190px; display:none; flex-direction:column;
+    z-index:60;
+  }
+  .resume-dd:hover .resume-dd-menu, .resume-dd:focus-within .resume-dd-menu{display:flex;}
+  .resume-dd-menu a{
+    padding:12px 16px; font-size:13px; font-family:'JetBrains Mono',monospace;
+    color:var(--cream-dim); border-bottom:1px solid var(--line);
+  }
+  .resume-dd-menu a:last-child{border-bottom:none;}
+  .resume-dd-menu a:hover{color:var(--choc-bright); background:rgba(201,135,77,0.08);}
+
   /* ---------- HERO ---------- */
   .hero{
     padding:88px 0 70px;
@@ -324,7 +345,13 @@
       <li><a href="#projects">Projects</a></li>
       <li><a href="#contact">Contact</a></li>
     </ul>
-    <a class="navcta" href="AnushkaBansode_AI.pdf" target="_blank" rel="noopener">Resume ↗</a>
+    <div class="resume-dd">
+      <button class="navcta resume-dd-btn" aria-haspopup="true" aria-expanded="false">Resume ▾</button>
+      <div class="resume-dd-menu">
+        <a href="AnushkaBansode_AI.pdf" target="_blank" rel="noopener">AI/ML Engineer ↗</a>
+        <a href="AnushkaBansode_DA.pdf" target="_blank" rel="noopener">Data Analyst / DS ↗</a>
+      </div>
+    </div>
   </nav>
 </header>
 
@@ -336,7 +363,8 @@
       <p class="hero-sub">Pre-final year B.E. AI &amp; Data Science undergraduate. I turn raw datasets into decisions, and build LLM-powered agents that ship — from SQL and Power BI dashboards to autonomous AI systems deployed live.</p>
       <div class="hero-cta">
         <a href="#projects" class="btn btn-primary">View Projects</a>
-        <a href="AnushkaBansode_AI.pdf" target="_blank" rel="noopener" class="btn btn-ghost">Download Resume</a>
+        <a href="AnushkaBansode_AI.pdf" target="_blank" rel="noopener" class="btn btn-ghost">Resume — AI/ML ↓</a>
+        <a href="AnushkaBansode_DA.pdf" target="_blank" rel="noopener" class="btn btn-ghost">Resume — DA/DS ↓</a>
       </div>
       <div class="hero-socials">
         <a href="https://github.com/Anushkabansode09" target="_blank" rel="noopener">GitHub ↗</a>
@@ -545,7 +573,10 @@
     <div class="eyebrow" style="justify-content:center;">Get In Touch</div>
     <h2>Let's <em>connect</em></h2>
     <p>Actively seeking Data Analytics and AI/ML Engineering internships. Open to opportunities, collaborations, or any conversation about data and AI.</p>
-    <a href="AnushkaBansode_AI.pdf" target="_blank" rel="noopener" class="btn btn-primary">↓ Download Resume</a>
+    <div class="hero-cta" style="justify-content:center;">
+      <a href="AnushkaBansode_AI.pdf" target="_blank" rel="noopener" class="btn btn-primary">↓ AI/ML Resume</a>
+      <a href="AnushkaBansode_DA.pdf" target="_blank" rel="noopener" class="btn btn-primary">↓ DA/DS Resume</a>
+    </div>
     <div class="contact-links">
       <a href="https://linkedin.com/in/anushka-bansode-0b3666280" target="_blank" rel="noopener">LinkedIn ↗</a>
       <a href="mailto:anushkabansode348@gmail.com">anushkabansode348@gmail.com</a>
